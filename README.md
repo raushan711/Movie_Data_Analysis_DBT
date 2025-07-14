@@ -1,4 +1,4 @@
-#🎬 Movie Data Analysis with DBT
+🎬 Movie Data Analysis with DBT
 
 A modular, scalable analytics project using S3 → Snowflake → DBT → Power BI, tailored for media industry use cases (e.g., Netflix), with additional adaptation scenarios for the insurance domain.
 
