@@ -1,66 +1,99 @@
-# Movie_Data_Analysis_DBT
+🎬 Movie Data Analysis with DBT
+A modular, scalable analytics project using S3 → Snowflake → DBT → Power BI, tailored for media industry use cases (e.g., Netflix), with additional adaptation scenarios for the insurance domain.
 
-## Tool-by-Tool Deep Dive
-1. Amazon S3 (Staging Layer)
-•	Purpose: Used as the initial landing zone for raw CSV files (e.g., Netflix/MovieLens data).
-•	Business Role: In enterprise settings like Netflix, S3 mimics a data lake — capturing structured or semi-structured logs of user activity, movie metadata, and ratings.
-•	Scalability: S3 allows separation of storage from compute, useful for long-term archival and historical backtracking of raw events.
-________________________________________
-2. Snowflake (Data Warehouse)
-•	Role: All raw files from S3 are ingested into Snowflake RAW schema tables.
-•	Performance: It’s columnar, elastically scalable, and supports semi-structured formats (like JSON) — useful for storing customer preferences or watch history.
-•	Business Value: For companies like Netflix, Snowflake centralizes siloed data into a single source of truth, supporting various consumer analytics (churn, engagement, recommendation performance).
-________________________________________
-3. DBT (Data Build Tool) – Core of the Project
-🔹 Models (SQL Logic Layer)
-•	Organized into:
-o	Staging Models (stg_*): Standardize column names, formats, and apply light cleaning (removing nulls, type casting).
-o	Intermediate Models (int_*): Join logic across domains like users + ratings or movies + tags.
-o	Mart Models (dim_*, fct_*): Final analytics-ready tables for reporting (dim_movies, dim_users, fct_ratings).
+🛠️ Tool-by-Tool Deep Dive
+1. Amazon S3 – Staging Layer
+Purpose: Landing zone for raw CSVs (e.g., Netflix or MovieLens data).
+
+Business Role: Functions as a data lake to capture structured/semi-structured logs — user activity, movie metadata, ratings.
+
+Scalability: Decouples storage and compute; ideal for archival and historical replay of raw events.
+
+2. Snowflake – Cloud Data Warehouse
+Role: Ingests raw data from S3 into RAW schema tables.
+
+Performance: Supports columnar storage, elastic scalability, and semi-structured formats (like JSON).
+
+Business Value: Provides a single source of truth for customer analytics — churn prediction, engagement metrics, and recommendation engine tuning.
+
+3. DBT (Data Build Tool) – Core Transformation Engine
+🔹 Models – SQL Logic Layer
+Staging Models (stg_*): Normalize names, formats; light cleaning (null removal, type casting).
+
+Intermediate Models (int_*): Join logic across domains — users + ratings, movies + tags.
+
+Mart Models (dim_*, fct_*): Final reporting-ready tables.
+
 🔹 Snapshots
-•	Track slowly changing dimensions (SCD Type 2) — like tracking if a user changes their subscription tier or location.
-•	Business Use: Essential for historical comparisons, such as comparing metrics “as known at the time.”
+Tracks Slowly Changing Dimensions (SCD Type 2) (e.g., user location or subscription changes).
+
+Business Use: Enables time-based analysis — comparing data “as it was known” historically.
+
 🔹 Tests
-•	Built-in:
-o	not_null, unique, accepted_values for column validations.
-•	Custom:
-o	e.g., “Every movie in ratings must exist in movies” → prevents data integrity issues.
-•	Governance Benefit: Ensures data quality contracts are enforced between teams — crucial for regulated industries (finance, insurance).
+Built-in: not_null, unique, accepted_values.
+
+Custom: E.g., Ensure all rated movies exist in the movie table.
+
+Governance Benefit: Enforces data contracts — vital in regulated domains.
+
 🔹 Seeds & Sources
-•	Seeds: Static reference tables (like genre mappings).
-•	Sources: Declare raw tables from Snowflake (originating from S3).
+Seeds: Static lookup/reference tables (e.g., genre mappings).
+
+Sources: Define raw Snowflake tables originating from S3.
+
 🔹 Documentation
-•	Auto-generated DAGs and lineage.
-•	Teams can see upstream dependencies — great for debugging broken pipelines.
+Auto-generates DAGs and lineage graphs.
+
+Enables traceability and debugging through clear dependency mapping.
+
 🔹 Macros (Jinja Templates)
-•	Used for DRY code (Don't Repeat Yourself):
-o	Example: Define a reusable current_timestamp() function.
-•	Business Use: Promotes consistent transformation logic across 100s of tables (especially in multi-tenant SaaS systems).
-________________________________________
-4. Power BI / Looker Studio (Visualization Layer)
-•	Final models (dim_, fct_) are exposed to Power BI for:
-o	Heatmaps of top-rated genres
-o	Average watch time across countries
-o	Active user cohorts and rating patterns
-•	For Netflix-like firms, this supports:
-o	Personalized recommendation tuning
-o	Subscriber engagement strategies
-o	Content performance evaluation
-________________________________________
-📊 Business Use Cases – Deep Dive
-🎬 For Media/Streaming (e.g., Netflix)
-•	Churn Prediction: Track behavior changes via snapshots.
-•	Recommendation Tuning: Use tag/rating analysis to optimize recommendation engines.
-•	Content Performance: Aggregate metrics to find out which genres/actors drive higher engagement.
-•	Geo Analytics: Understand what content performs best across regions — guide localization decisions.
-🏦 Adaptation for Insurance (Your Scenario)
-•	Policy Change Tracking: Use snapshots to track SCDs like plan upgrades or beneficiary changes.
-•	Claims Analysis: Use DBT models to compute average claim settlement times, fraud detection heuristics.
-•	Customer Segmentation: Power BI dashboards segment customers by policy type, age group, risk profile.
-•	Regulatory Reporting: DBT tests ensure clean and auditable data for compliance (IRDAI, etc.)
-________________________________________
-🧠 Key Architectural Concepts Reinforced
-•	ELT (not ETL): DBT embraces ELT (Extract → Load → Transform) using the warehouse’s power (Snowflake).
-•	Modularity: Transformation logic split into small, reusable SQL models.
-•	Data Contracts: Through testing + snapshots + documentation.
-•	DevOps for Analytics: Git-based workflow, CI/CD for data models, similar to software engineering best practices.
+Encourages DRY practices (Don't Repeat Yourself).
+
+Example: Reusable current_timestamp() function.
+
+Business Use: Consistency across large-scale, multi-tenant models.
+
+4. Power BI / Looker Studio – Visualization Layer
+Connects to DBT’s final models (dim_, fct_) to generate:
+
+🔥 Heatmaps of top-rated genres
+
+🌍 Watch-time comparisons across countries
+
+📊 Active user cohorts and rating behavior
+
+Media Business Insights:
+
+Personalized content tuning
+
+Subscriber retention strategies
+
+Evaluation of content performance
+
+📊 Business Use Cases
+🎥 Streaming / Media Domain (e.g., Netflix)
+Churn Prediction: Behavioral drift tracked via snapshots.
+
+Recommendation Engine Tuning: Use tags/ratings to optimize algorithms.
+
+Content Analytics: Identify high-performing actors, genres, and regions.
+
+Geo Analytics: Regional breakdowns guide localization strategies.
+
+🏦 Adaptation for Insurance Sector
+Policy Change Tracking: Use SCD snapshots to monitor plan upgrades or beneficiary edits.
+
+Claims Analysis: DBT models help assess average settlement times and flag potential fraud.
+
+Customer Segmentation: Power BI insights by age, risk profile, or policy type.
+
+Regulatory Reporting: DBT tests ensure integrity and compliance (e.g., IRDAI norms).
+
+🧠 Architectural Principles Reinforced
+ELT (Extract → Load → Transform): Leverages Snowflake's compute power for transformations.
+
+Modularity: Organized SQL models for maintainability.
+
+Data Contracts: Enforced via tests, snapshots, and clear documentation.
+
+DevOps for Analytics: Git-based workflows, CI/CD for data models — aligns with modern engineering practices.
